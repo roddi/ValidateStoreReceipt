@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		757917171274DB9800D249AB /* validatereceipt.m in Sources */ = {isa = PBXBuildFile; fileRef = DD5EBFFE1273472D00361AC6 /* validatereceipt.m */; };
+		757917181274DB9D00D249AB /* validatereceipt.h in Headers */ = {isa = PBXBuildFile; fileRef = DD5EBFFD1273472D00361AC6 /* validatereceipt.h */; };
 		8DD76F9A0486AA7600D96B5E /* ValidateStoreReceipt.m in Sources */ = {isa = PBXBuildFile; fileRef = 08FB7796FE84155DC02AAC07 /* ValidateStoreReceipt.m */; settings = {ATTRIBUTES = (); }; };
 		8DD76F9C0486AA7600D96B5E /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 08FB779EFE84155DC02AAC07 /* Foundation.framework */; };
 		DD5EBFFF1273472D00361AC6 /* validatereceipt.m in Sources */ = {isa = PBXBuildFile; fileRef = DD5EBFFE1273472D00361AC6 /* validatereceipt.m */; };
@@ -29,6 +31,7 @@
 		08FB7796FE84155DC02AAC07 /* ValidateStoreReceipt.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ValidateStoreReceipt.m; sourceTree = "<group>"; };
 		08FB779EFE84155DC02AAC07 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		32A70AAB03705E1F00C91783 /* ValidateStoreReceipt_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ValidateStoreReceipt_Prefix.pch; sourceTree = "<group>"; };
+		757917141274DB8300D249AB /* libvalidateAS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libvalidateAS.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		8DD76FA10486AA7600D96B5E /* ValidateStoreReceipt */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ValidateStoreReceipt; sourceTree = BUILT_PRODUCTS_DIR; };
 		DD5EBFFD1273472D00361AC6 /* validatereceipt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = validatereceipt.h; sourceTree = "<group>"; };
 		DD5EBFFE1273472D00361AC6 /* validatereceipt.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = validatereceipt.m; sourceTree = "<group>"; };
@@ -36,6 +39,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		757917121274DB8300D249AB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		8DD76F9B0486AA7600D96B5E /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -83,6 +93,7 @@
 			isa = PBXGroup;
 			children = (
 				8DD76FA10486AA7600D96B5E /* ValidateStoreReceipt */,
+				757917141274DB8300D249AB /* libvalidateAS.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -96,7 +107,35 @@
 		};
 /* End PBXGroup section */
 
+/* Begin PBXHeadersBuildPhase section */
+		757917101274DB8300D249AB /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				757917181274DB9D00D249AB /* validatereceipt.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
 /* Begin PBXNativeTarget section */
+		757917131274DB8300D249AB /* validateAS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7579171B1274DBC400D249AB /* Build configuration list for PBXNativeTarget "validateAS" */;
+			buildPhases = (
+				757917101274DB8300D249AB /* Headers */,
+				757917111274DB8300D249AB /* Sources */,
+				757917121274DB8300D249AB /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = validateAS;
+			productName = validateAS;
+			productReference = 757917141274DB8300D249AB /* libvalidateAS.a */;
+			productType = "com.apple.product-type.library.static";
+		};
 		8DD76F960486AA7600D96B5E /* ValidateStoreReceipt */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 1DEB927408733DD40010E9CD /* Build configuration list for PBXNativeTarget "ValidateStoreReceipt" */;
@@ -135,11 +174,20 @@
 			projectRoot = "";
 			targets = (
 				8DD76F960486AA7600D96B5E /* ValidateStoreReceipt */,
+				757917131274DB8300D249AB /* validateAS */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
+		757917111274DB8300D249AB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				757917171274DB9800D249AB /* validatereceipt.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		8DD76F990486AA7600D96B5E /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -197,6 +245,7 @@
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				OTHER_CFLAGS = "-DUSE_SAMPLE_RECEIPT";
 				PREBINDING = NO;
 				RUN_CLANG_STATIC_ANALYZER = YES;
 				SDKROOT = macosx10.5;
@@ -218,6 +267,52 @@
 			};
 			name = Release;
 		};
+		757917151274DB8300D249AB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				INSTALL_PATH = /usr/local/lib;
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					AppKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = validateAS;
+			};
+			name = Debug;
+		};
+		757917161274DB8300D249AB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				INSTALL_PATH = /usr/local/lib;
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					AppKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = validateAS;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -235,6 +330,15 @@
 			buildConfigurations = (
 				1DEB927908733DD40010E9CD /* Debug */,
 				1DEB927A08733DD40010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		7579171B1274DBC400D249AB /* Build configuration list for PBXNativeTarget "validateAS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				757917151274DB8300D249AB /* Debug */,
+				757917161274DB8300D249AB /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

@@ -23,9 +23,6 @@ NSString *kReceiptVersion = @"Version";
 NSString *kReceiptOpaqueValue = @"OpaqueValue";
 NSString *kReceiptHash = @"Hash";
 
-const BOOL doDebug = YES;
-
-
 NSDictionary * dictionaryWithAppStoreReceipt(NSString * path)
 {
     enum ATTRIBUTES 
@@ -96,7 +93,8 @@ NSDictionary * dictionaryWithAppStoreReceipt(NSString * path)
         // Attribute version
         ASN1_get_object(&p, &length, &type, &xclass, seq_end - p);
         if (type == V_ASN1_INTEGER && length == 1) {
-            attr_version = p[0]; // <-- yes, this is never read, the analyzer complains but I wont change it...
+            attr_version = p[0];
+			attr_version = attr_version;
         }
         p += length;
         
@@ -218,7 +216,6 @@ CFDataRef copy_mac_address(void)
     return macAddress;
 }
 
-
 BOOL validateReceiptAtPath(NSString * path)
 {
 	NSDictionary * receipt = dictionaryWithAppStoreReceipt(path);
@@ -236,12 +233,11 @@ BOOL validateReceiptAtPath(NSString * path)
 	if (!guidData)
 		return NO;
 
-	if (doDebug)
-	{
+#ifdef USE_SAMPLE_RECEIPT
 		// Overwrite with example GUID for use with example receipt
 		unsigned char guid[] = { 0x00, 0x17, 0xf2, 0xc4, 0xbc, 0xc0 };		
 		guidData = [NSData dataWithBytes:guid length:sizeof(guid)];		
-	}	
+#endif
 	
 	NSMutableData *input = [NSMutableData data];
 	[input appendData:guidData];
