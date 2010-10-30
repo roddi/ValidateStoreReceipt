@@ -14,6 +14,7 @@ extern NSString *kReceiptVersion;
 extern NSString *kReceiptOpaqueValue;
 extern NSString *kReceiptHash;
 
+CFDataRef copy_mac_address(void);
 
 NSDictionary * dictionaryWithAppStoreReceipt(NSString * path);
 BOOL validateReceiptAtPath(NSString * path);

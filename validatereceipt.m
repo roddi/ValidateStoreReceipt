@@ -16,6 +16,19 @@
 #include <openssl/objects.h>
 #include <openssl/sha.h>
 
+//#define USE_SAMPLE_RECEIPT
+
+#ifdef USE_SAMPLE_RECEIPT
+#warning ************************************
+#warning *******                      *******
+#warning ******* USES SAMPLE RECEIPT! *******
+#warning ******* USES SAMPLE RECEIPT! *******
+#warning ******* USES SAMPLE RECEIPT! *******
+#warning ******* USES SAMPLE RECEIPT! *******
+#warning *******                      *******
+#warning ************************************
+#endif
+
 
 NSString *kReceiptBundleIdentifer = @"BundleIdentifier";
 NSString *kReceiptBundleIdentiferData = @"BundleIdentifierData";
