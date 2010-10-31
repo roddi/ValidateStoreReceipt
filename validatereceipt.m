@@ -236,9 +236,9 @@ BOOL validateReceiptAtPath(NSString * path)
 	if (!receipt)
 		return NO;
 	
-	NSData * guidData;
-	NSString *bundleVersion;
-	NSString *bundleIdentifer;
+	NSData * guidData = nil;
+	NSString *bundleVersion = nil;
+	NSString *bundleIdentifer = nil;
 #ifndef USE_SAMPLE_RECEIPT
 	guidData = (NSData*)copy_mac_address();
 
