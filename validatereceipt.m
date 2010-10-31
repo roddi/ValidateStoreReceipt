@@ -232,11 +232,15 @@ CFDataRef copy_mac_address(void)
 BOOL validateReceiptAtPath(NSString * path)
 {
 	NSDictionary * receipt = dictionaryWithAppStoreReceipt(path);
-
+	
 	if (!receipt)
 		return NO;
 	
-	NSData * guidData = (NSData*)copy_mac_address();
+	NSData * guidData;
+	NSString *bundleVersion;
+	NSString *bundleIdentifer;
+#ifndef USE_SAMPLE_RECEIPT
+	guidData = (NSData*)copy_mac_address();
 
 	if ([NSGarbageCollector defaultCollector])
 		[[NSGarbageCollector defaultCollector] enableCollectorForPointer:guidData];
@@ -245,11 +249,16 @@ BOOL validateReceiptAtPath(NSString * path)
 
 	if (!guidData)
 		return NO;
+	
+	bundleVersion = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
+	bundleIdentifer = [[NSBundle mainBundle] bundleIdentifier];
 
-#ifdef USE_SAMPLE_RECEIPT
-		// Overwrite with example GUID for use with example receipt
-		unsigned char guid[] = { 0x00, 0x17, 0xf2, 0xc4, 0xbc, 0xc0 };		
-		guidData = [NSData dataWithBytes:guid length:sizeof(guid)];		
+#else
+	// Overwrite with example GUID for use with example receipt
+	unsigned char guid[] = { 0x00, 0x17, 0xf2, 0xc4, 0xbc, 0xc0 };		
+	guidData = [NSData dataWithBytes:guid length:sizeof(guid)];
+	bundleVersion = @"1.0.2";
+	bundleIdentifer = @"com.example.SampleApp";
 #endif
 	
 	NSMutableData *input = [NSMutableData data];
@@ -259,7 +268,10 @@ BOOL validateReceiptAtPath(NSString * path)
 	
 	NSMutableData *hash = [NSMutableData dataWithLength:SHA_DIGEST_LENGTH];
 	SHA1([input bytes], [input length], [hash mutableBytes]);
-	if ([hash isEqualToData:[receipt objectForKey:kReceiptHash]]) 
+
+	if ([bundleIdentifer isEqualToString:[receipt objectForKey:kReceiptBundleIdentifer]] &&
+		 [bundleVersion isEqualToString:[receipt objectForKey:kReceiptVersion]] &&
+		 [hash isEqualToData:[receipt objectForKey:kReceiptHash]]) 
 	{
 		return YES;
 	}
