@@ -1,5 +1,5 @@
 # ValidateStoreReceipt
-Matthew Stevens, Ruotger Skupin, Apple, Dave Carlton.
+Matthew Stevens, Ruotger Skupin, Apple, Dave Carlton, Fraser Hess.
 
 At the end of October 2010 Apple announced the App Store for Mac. The App Store will put a receipt into your app bundle, but 
 won't implement any copy protection scheme. For details see [Validating App Store Receipts](https://developer.apple.com/devcenter/mac/documents/validating.html) (Developer membership needed)

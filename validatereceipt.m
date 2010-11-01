@@ -2,7 +2,7 @@
 //  validatereceipt.m
 //
 //  Created by Ruotger Skupin on 23.10.10.
-//  Copyright 2010 Matthew Stevens, Ruotger Skupin, Apple, Dave Carlton. All rights reserved.
+//  Copyright 2010 Matthew Stevens, Ruotger Skupin, Apple, Dave Carlton, Fraser Hess. All rights reserved.
 //
 
 #import "validatereceipt.h"
@@ -236,9 +236,9 @@ BOOL validateReceiptAtPath(NSString * path)
 	if (!receipt)
 		return NO;
 	
-	NSData * guidData;
-	NSString *bundleVersion;
-	NSString *bundleIdentifer;
+	NSData * guidData = nil;
+	NSString *bundleVersion = nil;
+	NSString *bundleIdentifer = nil;
 #ifndef USE_SAMPLE_RECEIPT
 	guidData = (NSData*)copy_mac_address();
 
