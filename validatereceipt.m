@@ -2,7 +2,7 @@
 //  validatereceipt.m
 //
 //  Created by Ruotger Skupin on 23.10.10.
-//  Copyright 2010 Matthew Stevens, Ruotger Skupin, Apple, Dave Carlton. All rights reserved.
+//  Copyright 2010 Matthew Stevens, Ruotger Skupin, Apple, Dave Carlton, Fraser Hess. All rights reserved.
 //
 
 #import "validatereceipt.h"
