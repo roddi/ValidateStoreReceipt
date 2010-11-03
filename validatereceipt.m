@@ -2,12 +2,12 @@
 //  validatereceipt.m
 //
 //  Created by Ruotger Skupin on 23.10.10.
-//  Copyright 2010 Matthew Stevens, Ruotger Skupin, Apple, Dave Carlton, Fraser Hess. All rights reserved.
+//  Copyright 2010 Matthew Stevens, Ruotger Skupin, Apple, Dave Carlton, Fraser Hess, anlumo. All rights reserved.
 //
 
 #import "validatereceipt.h"
 
-// link with Foundation.framework, IOKit.framework and libCrypto (via -lcrypto)
+// link with Foundation.framework, IOKit.framework, Security.framework and libCrypto (via -lcrypto in Other Linker Flags)
 
 #import <IOKit/IOKitLib.h>
 #import <Foundation/Foundation.h>
@@ -122,8 +122,6 @@ NSDictionary * dictionaryWithAppStoreReceipt(NSString * path)
 	ERR_load_X509_strings();
 	OpenSSL_add_all_digests();
 	
-	//X509_TEA_set_state(0);
-	
     // Expected input is a PKCS7 container with signed data containing
     // an ASN.1 SET of SEQUENCE structures. Each SEQUENCE contains
     // two INTEGERS and an OCTET STRING.
@@ -149,7 +147,7 @@ NSDictionary * dictionaryWithAppStoreReceipt(NSString * path)
 	BIO *payload = BIO_new(BIO_s_mem());
 	X509_STORE *store = X509_STORE_new();
 	
-	const unsigned char *data = rootCertData.bytes;
+	unsigned char *data = (unsigned char *)(rootCertData.bytes);
 	X509 *appleCA = d2i_X509(NULL, &data, rootCertData.length);
 	
 	X509_STORE_add_cert(store, appleCA);
@@ -174,7 +172,10 @@ NSDictionary * dictionaryWithAppStoreReceipt(NSString * path)
 	EVP_cleanup();
 	
 	if (verifyReturnValue != 1)
+	{
+        PKCS7_free(p7);
 		return nil;	
+	}
 	
     ASN1_OCTET_STRING *octets = p7->d.sign->contents->d.data;   
     unsigned char *p = octets->data;
