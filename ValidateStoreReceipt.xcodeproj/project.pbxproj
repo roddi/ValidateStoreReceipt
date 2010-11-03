@@ -13,6 +13,7 @@
 		8DD76F9C0486AA7600D96B5E /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 08FB779EFE84155DC02AAC07 /* Foundation.framework */; };
 		DD5EBFFF1273472D00361AC6 /* validatereceipt.m in Sources */ = {isa = PBXBuildFile; fileRef = DD5EBFFE1273472D00361AC6 /* validatereceipt.m */; };
 		DD5EC0011273474F00361AC6 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DD5EC0001273474F00361AC6 /* IOKit.framework */; };
+		DDDE9E931281FFD3003F581D /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DDDE9E921281FFD3003F581D /* Security.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -36,6 +37,7 @@
 		DD5EBFFD1273472D00361AC6 /* validatereceipt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = validatereceipt.h; sourceTree = "<group>"; };
 		DD5EBFFE1273472D00361AC6 /* validatereceipt.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = validatereceipt.m; sourceTree = "<group>"; };
 		DD5EC0001273474F00361AC6 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
+		DDDE9E921281FFD3003F581D /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -52,6 +54,7 @@
 			files = (
 				8DD76F9C0486AA7600D96B5E /* Foundation.framework in Frameworks */,
 				DD5EC0011273474F00361AC6 /* IOKit.framework in Frameworks */,
+				DDDE9E931281FFD3003F581D /* Security.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -66,6 +69,7 @@
 				08FB779DFE84155DC02AAC07 /* External Frameworks and Libraries */,
 				1AB674ADFE9D54B511CA2CBB /* Products */,
 				DD5EC0001273474F00361AC6 /* IOKit.framework */,
+				DDDE9E921281FFD3003F581D /* Security.framework */,
 			);
 			name = ValidateStoreReceipt;
 			sourceTree = "<group>";
