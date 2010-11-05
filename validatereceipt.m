@@ -2,19 +2,23 @@
 //  validatereceipt.m
 //
 //  Created by Ruotger Skupin on 23.10.10.
-//  Copyright 2010 Matthew Stevens, Ruotger Skupin, Apple, Dave Carlton, Fraser Hess. All rights reserved.
+//  Copyright 2010 Matthew Stevens, Ruotger Skupin, Apple, Dave Carlton, Fraser Hess, anlumo. All rights reserved.
 //
 
 #import "validatereceipt.h"
 
-// link with Foundation.framework, IOKit.framework and libCrypto (via -lcrypto)
+// link with Foundation.framework, IOKit.framework, Security.framework and libCrypto (via -lcrypto in Other Linker Flags)
 
 #import <IOKit/IOKitLib.h>
 #import <Foundation/Foundation.h>
 
+#import <Security/Security.h>
+
 #include <openssl/pkcs7.h>
 #include <openssl/objects.h>
 #include <openssl/sha.h>
+#include <openssl/x509.h>
+#include <openssl/err.h>
 
 //#define USE_SAMPLE_RECEIPT
 
@@ -36,8 +40,74 @@ NSString *kReceiptVersion = @"Version";
 NSString *kReceiptOpaqueValue = @"OpaqueValue";
 NSString *kReceiptHash = @"Hash";
 
+
+NSData * appleRootCert()
+{
+	OSStatus status;
+	
+	SecKeychainRef keychain = nil;
+	status = SecKeychainOpen("/System/Library/Keychains/SystemRootCertificates.keychain", &keychain);
+	if(status) {
+		if(keychain) CFRelease(keychain);
+		return nil;
+	}
+	
+	CFArrayRef searchList = CFArrayCreate(kCFAllocatorDefault, (const void**)&keychain, 1, &kCFTypeArrayCallBacks);
+
+	if (keychain)
+		CFRelease(keychain);
+	
+	SecKeychainSearchRef searchRef = nil;
+	status = SecKeychainSearchCreateFromAttributes(searchList, kSecCertificateItemClass, NULL, &searchRef);
+	if(status) {
+		if(searchRef) CFRelease(searchRef);
+		if(searchList) CFRelease(searchList);
+		return nil;
+	}
+	
+	SecKeychainItemRef itemRef = nil;
+	NSData * resultData = nil;
+	
+	while(SecKeychainSearchCopyNext(searchRef, &itemRef) == noErr && resultData == nil) {
+		// Grab the name of the certificate
+		SecKeychainAttributeList list;
+		SecKeychainAttribute attributes[1];
+		
+		attributes[0].tag = kSecLabelItemAttr;
+		
+		list.count = 1;
+		list.attr = attributes;
+		
+		SecKeychainItemCopyContent(itemRef, nil, &list, nil, nil);
+		NSData *nameData = [NSData dataWithBytesNoCopy:attributes[0].data length:attributes[0].length freeWhenDone:NO];
+		NSString *name = [[NSString alloc] initWithData:nameData encoding:NSUTF8StringEncoding];
+		
+		if([name isEqualToString:@"Apple Root CA"]) {
+			CSSM_DATA certData;
+			status = SecCertificateGetData((SecCertificateRef)itemRef, &certData);
+			if(status) {
+				if(itemRef) CFRelease(itemRef);
+			}
+						
+			resultData = [NSData dataWithBytes:certData.Data length:certData.Length];
+			
+			SecKeychainItemFreeContent(&list, NULL);
+			if(itemRef) CFRelease(itemRef);
+		}
+		
+        [name release];
+	}
+	CFRelease(searchList);
+	CFRelease(searchRef);
+	
+	return resultData;
+}
+
+
 NSDictionary * dictionaryWithAppStoreReceipt(NSString * path)
 {
+	NSData * rootCertData = appleRootCert();
+	
     enum ATTRIBUTES 
 	{
         ATTR_START = 1,
@@ -48,6 +118,10 @@ NSDictionary * dictionaryWithAppStoreReceipt(NSString * path)
         ATTR_END
     };
     
+	ERR_load_PKCS7_strings();
+	ERR_load_X509_strings();
+	OpenSSL_add_all_digests();
+	
     // Expected input is a PKCS7 container with signed data containing
     // an ASN.1 SET of SEQUENCE structures. Each SEQUENCE contains
     // two INTEGERS and an OCTET STRING.
@@ -70,6 +144,39 @@ NSDictionary * dictionaryWithAppStoreReceipt(NSString * path)
         return nil;
     }
     
+	BIO *payload = BIO_new(BIO_s_mem());
+	X509_STORE *store = X509_STORE_new();
+	
+	unsigned char *data = (unsigned char *)(rootCertData.bytes);
+	X509 *appleCA = d2i_X509(NULL, &data, rootCertData.length);
+	
+	X509_STORE_add_cert(store, appleCA);
+	
+	int verifyReturnValue = PKCS7_verify(p7,NULL,store,NULL,payload,0);
+
+	// this code will come handy when the first real receipts arrive
+#if 0
+	unsigned long err = ERR_get_error();
+	if(err)
+		printf("%lu: %s\n",err,ERR_error_string(err,NULL));
+	else {
+		STACK_OF(X509) *stack = PKCS7_get0_signers(p7, NULL, 0);
+		for(NSUInteger i = 0; i < sk_num(stack); i++) {
+			const X509 *signer = (X509*)sk_value(stack, i);
+			NSLog(@"name = %s", signer->name);
+		}
+	}
+#endif
+	
+	X509_STORE_free(store);
+	EVP_cleanup();
+	
+	if (verifyReturnValue != 1)
+	{
+        PKCS7_free(p7);
+		return nil;	
+	}
+	
     ASN1_OCTET_STRING *octets = p7->d.sign->contents->d.data;   
     unsigned char *p = octets->data;
     unsigned char *end = p + octets->length;
