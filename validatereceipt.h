@@ -18,4 +18,4 @@ CFDataRef copy_mac_address(void);
 
 NSDictionary * dictionaryWithAppStoreReceipt(NSString * path);
 BOOL validateReceiptAtPath(NSString * path);
-
+NSData * appleRootCert(void);
