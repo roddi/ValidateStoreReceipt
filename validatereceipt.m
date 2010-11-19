@@ -144,31 +144,41 @@ NSDictionary * dictionaryWithAppStoreReceipt(NSString * path)
         return nil;
     }
     
-	BIO *payload = BIO_new(BIO_s_mem());
+	int verifyReturnValue = 0;
 	X509_STORE *store = X509_STORE_new();
-	
-	unsigned char *data = (unsigned char *)(rootCertData.bytes);
-	X509 *appleCA = d2i_X509(NULL, &data, rootCertData.length);
-	
-	X509_STORE_add_cert(store, appleCA);
-	
-	int verifyReturnValue = PKCS7_verify(p7,NULL,store,NULL,payload,0);
+	if (store)
+	{
+		unsigned char *data = (unsigned char *)(rootCertData.bytes);
+		X509 *appleCA = d2i_X509(NULL, &data, rootCertData.length);
+		if (appleCA)
+		{
+			BIO *payload = BIO_new(BIO_s_mem());
+			X509_STORE_add_cert(store, appleCA);
 
-	// this code will come handy when the first real receipts arrive
+			if (payload)
+			{
+				verifyReturnValue = PKCS7_verify(p7,NULL,store,NULL,payload,0);
+				BIO_free(payload);
+			}
+
+			// this code will come handy when the first real receipts arrive
 #if 0
-	unsigned long err = ERR_get_error();
-	if(err)
-		printf("%lu: %s\n",err,ERR_error_string(err,NULL));
-	else {
-		STACK_OF(X509) *stack = PKCS7_get0_signers(p7, NULL, 0);
-		for(NSUInteger i = 0; i < sk_num(stack); i++) {
-			const X509 *signer = (X509*)sk_value(stack, i);
-			NSLog(@"name = %s", signer->name);
-		}
-	}
+			unsigned long err = ERR_get_error();
+			if(err)
+				printf("%lu: %s\n",err,ERR_error_string(err,NULL));
+			else {
+				STACK_OF(X509) *stack = PKCS7_get0_signers(p7, NULL, 0);
+				for(NSUInteger i = 0; i < sk_num(stack); i++) {
+					const X509 *signer = (X509*)sk_value(stack, i);
+					NSLog(@"name = %s", signer->name);
+				}
+			}
 #endif
-	
-	X509_STORE_free(store);
+
+			X509_free(appleCA);
+		}
+		X509_STORE_free(store);
+	}
 	EVP_cleanup();
 	
 	if (verifyReturnValue != 1)
