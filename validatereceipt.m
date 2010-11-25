@@ -133,6 +133,11 @@ NSDictionary * dictionaryWithAppStoreReceipt(NSString * path)
     
     PKCS7 *p7 = d2i_PKCS7_fp(fp, NULL);
     fclose(fp);
+	
+	// Check if the receipt file was invalid (otherwise we go crashing and burning)
+	if (p7 == NULL) {
+		return nil;
+	}
     
     if (!PKCS7_type_is_signed(p7)) {
         PKCS7_free(p7);
