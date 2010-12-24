@@ -1,5 +1,5 @@
 # ValidateStoreReceipt
-Matthew Stevens, Ruotger Skupin, Apple, Dave Carlton, Fraser Hess, anlumo.
+Matthew Stevens, Ruotger Skupin, Apple, Dave Carlton, Fraser Hess, anlumo, yene.
 
 At the end of October 2010 Apple announced the App Store for Mac. The App Store will put a receipt into your app bundle, but 
 won't implement any copy protection scheme. For details see [Validating App Store Receipts](https://developer.apple.com/devcenter/mac/documents/validating.html) (Developer membership needed)
@@ -24,3 +24,22 @@ If you have an app that is more or less ready for the App Store, I think you wil
 ## Using It
 
 Be aware that there will be people trying to crack your app. So cover your tracks. I won't go into details but Blocks and Grand Central Dispatch seem to be good tools for that.
+
+## License
+
+ Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+ 
+ Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+ 
+ Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the distribution.
+ 
+ Neither the name of the copyright holders nor the names of its contributors may be used to endorse or promote products derived 
+ from this software without specific prior written permission.
+ 
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, 
+ BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT 
+ SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
+ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.

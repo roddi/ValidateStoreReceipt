@@ -5,6 +5,25 @@
 //  Copyright 2010 Matthew Stevens, Ruotger Skupin, Apple, Dave Carlton, Fraser Hess, anlumo. All rights reserved.
 //
 
+/* 
+ Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+ 
+ Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+ 
+ Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the distribution.
+ 
+ Neither the name of the copyright holders nor the names of its contributors may be used to endorse or promote products derived 
+ from this software without specific prior written permission.
+ 
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, 
+ BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT 
+ SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
+ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
 #import "validatereceipt.h"
 
 // link with Foundation.framework, IOKit.framework, Security.framework and libCrypto (via -lcrypto in Other Linker Flags)
@@ -24,15 +43,24 @@
 
 #ifdef USE_SAMPLE_RECEIPT
 #warning ************************************
-#warning *******                      *******
 #warning ******* USES SAMPLE RECEIPT! *******
-#warning ******* USES SAMPLE RECEIPT! *******
-#warning ******* USES SAMPLE RECEIPT! *******
-#warning ******* USES SAMPLE RECEIPT! *******
-#warning *******                      *******
 #warning ************************************
 #endif
 
+
+#ifndef YES_I_HAVE_READ_THE_WARNING_AND_I_ACCEPT_THE_RISK
+
+#warning --- DON'T USE THIS CODE AS IS! IF EVERYONE USES THE SAME CODE
+#warning --- IT IS PRETTY EASY TO BUILD AN AUTOMATIC CRACKING TOOL
+#warning --- FOR APPS USING THIS CODE! 
+#warning --- BY USING THIS CODE YOU ACCEPT TAKING THE RESPONSIBILITY FOR 
+#warning --- ANY DAMAGE!  
+#warning --- 
+#warning --- YOU HAVE BEEN WARNED!
+
+// if you want to take that risk, add "-DYES_I_HAVE_READ_THE_WARNING_AND_I_ACCEPT_THE_RISK" in the build settings at "Other C Flags"
+
+#endif // YES_I_HAVE_READ_THE_WARNING_AND_I_ACCEPT_THE_RISK
 
 NSString *kReceiptBundleIdentifer = @"BundleIdentifier";
 NSString *kReceiptBundleIdentiferData = @"BundleIdentifierData";
@@ -153,8 +181,8 @@ NSDictionary * dictionaryWithAppStoreReceipt(NSString * path)
 	X509_STORE *store = X509_STORE_new();
 	if (store)
 	{
-		const unsigned char *data = (unsigned char *)(rootCertData.bytes);
-		X509 *appleCA = d2i_X509(NULL, &data, rootCertData.length);
+		unsigned char *data = (unsigned char *)(rootCertData.bytes);
+		X509 *appleCA = d2i_X509(NULL, &data, (long)rootCertData.length);
 		if (appleCA)
 		{
 			BIO *payload = BIO_new(BIO_s_mem());
@@ -193,7 +221,7 @@ NSDictionary * dictionaryWithAppStoreReceipt(NSString * path)
 	}
 	
     ASN1_OCTET_STRING *octets = p7->d.sign->contents->d.data;   
-    const unsigned char *p = octets->data;
+	unsigned char *p = octets->data;
     const unsigned char *end = p + octets->length;
     
     int type = 0;
@@ -242,7 +270,7 @@ NSDictionary * dictionaryWithAppStoreReceipt(NSString * path)
                 
                 // Bytes
                 if (attr_type == BUNDLE_ID || attr_type == OPAQUE_VALUE || attr_type == HASH) {
-                    NSData *data = [NSData dataWithBytes:p length:length];
+                    NSData *data = [NSData dataWithBytes:p length:(NSUInteger)length];
                     
                     switch (attr_type) {
                         case BUNDLE_ID:
@@ -264,11 +292,11 @@ NSDictionary * dictionaryWithAppStoreReceipt(NSString * path)
                 if (attr_type == BUNDLE_ID || attr_type == VERSION) {
                     int str_type = 0;
                     long str_length = 0;
-                    const unsigned char *str_p = p;
+					unsigned char *str_p = p;
                     ASN1_get_object(&str_p, &str_length, &str_type, &xclass, seq_end - str_p);
                     if (str_type == V_ASN1_UTF8STRING) {
                         NSString *string = [[[NSString alloc] initWithBytes:str_p
-                                                                     length:str_length
+                                                                     length:(NSUInteger)str_length
                                                                    encoding:NSUTF8StringEncoding] autorelease];
 						
                         switch (attr_type) {
