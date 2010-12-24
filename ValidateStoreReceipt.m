@@ -6,11 +6,16 @@ int main (int argc, const char * argv[]) {
     NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
 
 	// put the example receipt on the desktop (or change that path)
-	if (!validateReceiptAtPath(@"~/Desktop/receipt"))
+	NSString * pathToReceipt = @"~/Desktop/receipt";
+	
+	// in your own code you have to do:
+	// NSString * pathToReceipt = [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:@"Contents/_MASReceipt/receipt"];
+	// this example is not a bundle so it wont work here.
+	
+	if (!validateReceiptAtPath(pathToReceipt))
 		exit(173);
 	
-    // insert code here...
-    NSLog(@"Hello, World!");
+    NSLog(@"Hello, correctly validated World!");
     [pool drain];
     return 0;
 }
