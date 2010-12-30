@@ -82,8 +82,13 @@ NSData * appleRootCert(void)
 	
 	CFArrayRef searchList = CFArrayCreate(kCFAllocatorDefault, (const void**)&keychain, 1, &kCFTypeArrayCallBacks);
 
+	// For some reason we get a malloc reference underflow warning message when garbage collection
+	// is on. Perhaps a bug in SecKeychainOpen where the keychain reference isn't actually retained
+	// in GC?
+#ifndef __OBJC_GC__
 	if (keychain)
 		CFRelease(keychain);
+#endif
 	
 	SecKeychainSearchRef searchRef = nil;
 	status = SecKeychainSearchCreateFromAttributes(searchList, kSecCertificateItemClass, NULL, &searchRef);
