@@ -61,6 +61,7 @@
 // if you want to take that risk, add "-DYES_I_HAVE_READ_THE_WARNING_AND_I_ACCEPT_THE_RISK" in the build settings at "Other C Flags"
 
 #endif // YES_I_HAVE_READ_THE_WARNING_AND_I_ACCEPT_THE_RISK
+#define VRCFRelease(object) if(object) CFRelease(object)
 
 NSString *kReceiptBundleIdentifer = @"BundleIdentifier";
 NSString *kReceiptBundleIdentiferData = @"BundleIdentifierData";
@@ -75,21 +76,20 @@ NSData * appleRootCert(void)
 	
 	SecKeychainRef keychain = nil;
 	status = SecKeychainOpen("/System/Library/Keychains/SystemRootCertificates.keychain", &keychain);
-	if(status) {
-		if(keychain) CFRelease(keychain);
+	if(status){
+		VRCFRelease(keychain);
 		return nil;
 	}
 	
 	CFArrayRef searchList = CFArrayCreate(kCFAllocatorDefault, (const void**)&keychain, 1, &kCFTypeArrayCallBacks);
 
-	if (keychain)
-		CFRelease(keychain);
+	VRCFRelease(keychain);
 	
 	SecKeychainSearchRef searchRef = nil;
 	status = SecKeychainSearchCreateFromAttributes(searchList, kSecCertificateItemClass, NULL, &searchRef);
-	if(status) {
-		if(searchRef) CFRelease(searchRef);
-		if(searchList) CFRelease(searchList);
+	if(status){
+        VRCFRelease(searchRef);
+        VRCFRelease(searchList);
 		return nil;
 	}
 	
@@ -113,20 +113,20 @@ NSData * appleRootCert(void)
 		if([name isEqualToString:@"Apple Root CA"]) {
 			CSSM_DATA certData;
 			status = SecCertificateGetData((SecCertificateRef)itemRef, &certData);
-			if(status) {
-				if(itemRef) CFRelease(itemRef);
+			if(status){
+                VRCFRelease(itemRef);
 			}
 						
 			resultData = [NSData dataWithBytes:certData.Data length:certData.Length];
 			
 			SecKeychainItemFreeContent(&list, NULL);
-			if(itemRef) CFRelease(itemRef);
+            VRCFRelease(itemRef);
 		}
 		
         [name release];
 	}
-	CFRelease(searchList);
-	CFRelease(searchRef);
+    VRCFRelease(searchList);
+    VRCFRelease(searchRef);
 	
 	return resultData;
 }
@@ -364,8 +364,7 @@ CFDataRef copy_mac_address(void)
         kernResult = IORegistryEntryGetParentEntry(service, kIOServicePlane, &parentService);
         if(kernResult == KERN_SUCCESS)
         {
-            if(macAddress) CFRelease(macAddress);
-			
+            VRCFRelease(macAddress);
             macAddress = IORegistryEntryCreateCFProperty(parentService, CFSTR("IOMACAddress"), kCFAllocatorDefault, 0);
             IOObjectRelease(parentService);
         }
