@@ -181,7 +181,7 @@ NSDictionary * dictionaryWithAppStoreReceipt(NSString * path)
 	X509_STORE *store = X509_STORE_new();
 	if (store)
 	{
-		unsigned char *data = (unsigned char *)(rootCertData.bytes);
+		const unsigned char *data = (unsigned char *)(rootCertData.bytes);
 		X509 *appleCA = d2i_X509(NULL, &data, (long)rootCertData.length);
 		if (appleCA)
 		{
@@ -221,7 +221,7 @@ NSDictionary * dictionaryWithAppStoreReceipt(NSString * path)
 	}
 	
     ASN1_OCTET_STRING *octets = p7->d.sign->contents->d.data;   
-	unsigned char *p = octets->data;
+	const unsigned char *p = octets->data;
     const unsigned char *end = p + octets->length;
     
     int type = 0;
@@ -292,7 +292,7 @@ NSDictionary * dictionaryWithAppStoreReceipt(NSString * path)
                 if (attr_type == BUNDLE_ID || attr_type == VERSION) {
                     int str_type = 0;
                     long str_length = 0;
-					unsigned char *str_p = p;
+					const unsigned char *str_p = p;
                     ASN1_get_object(&str_p, &str_length, &str_type, &xclass, seq_end - str_p);
                     if (str_type == V_ASN1_UTF8STRING) {
                         NSString *string = [[[NSString alloc] initWithBytes:str_p
