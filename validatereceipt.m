@@ -61,6 +61,7 @@
 // if you want to take that risk, add "-DYES_I_HAVE_READ_THE_WARNING_AND_I_ACCEPT_THE_RISK" in the build settings at "Other C Flags"
 
 #endif // YES_I_HAVE_READ_THE_WARNING_AND_I_ACCEPT_THE_RISK
+
 #define VRCFRelease(object) if(object) CFRelease(object)
 
 NSString *kReceiptBundleIdentifer = @"BundleIdentifier";
