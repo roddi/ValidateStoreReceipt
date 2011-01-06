@@ -113,19 +113,15 @@ NSData * appleRootCert(void)
 		
 		if([name isEqualToString:@"Apple Root CA"]) {
 			CSSM_DATA certData;
-			status = SecCertificateGetData((SecCertificateRef)itemRef, &certData);
-			if(status){
-				VRCFRelease(itemRef);
-			}
-						
+			SecCertificateGetData((SecCertificateRef)itemRef, &certData);
 			resultData = [NSData dataWithBytes:certData.Data length:certData.Length];
-			
 			SecKeychainItemFreeContent(&list, NULL);
 			VRCFRelease(itemRef);
 		}
-		
+
 		[name release];
 	}
+
 	VRCFRelease(searchList);
 	VRCFRelease(searchRef);
 	
