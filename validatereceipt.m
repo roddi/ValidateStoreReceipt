@@ -404,10 +404,24 @@ BOOL validateReceiptAtPath(NSString * path)
 
 	if (!guidData)
 		return NO;
-	
-	bundleVersion = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
-	bundleIdentifer = [[NSBundle mainBundle] bundleIdentifier];
 
+	// it turns out, it's a bad idea, to use these two NSBundle methods in your app:
+	//
+	// bundleVersion = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
+	// bundleIdentifer = [[NSBundle mainBundle] bundleIdentifier];
+	//
+	// http://www.craftymind.com/2011/01/06/mac-app-store-hacked-how-developers-can-better-protect-themselves/
+
+	// so use hard coded values instead (probably even somehow obfuscated)
+	bundleVersion = @"1.0.2";
+	bundleIdentifer = @"com.example.SampleApp";
+
+	// avoid making stupid mistakes --> check again
+	NSAssert([bundleVersion isEqualToString:[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"]], 
+			 @"whoops! check the hard-coded CFBundleShortVersionString!");
+	NSAssert([bundleIdentifer isEqualToString:[[NSBundle mainBundle] bundleIdentifier]], 
+			 @"whoops! check the hard-coded bundle identifier!");
+	
 #else
 	// Overwrite with example GUID for use with example receipt
 	unsigned char guid[] = { 0x00, 0x17, 0xf2, 0xc4, 0xbc, 0xc0 };		
