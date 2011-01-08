@@ -397,9 +397,9 @@ BOOL validateReceiptAtPath(NSString * path)
 	bundleIdentifier = @"com.example.SampleApp";
 
 	// avoid making stupid mistakes --> check again
-	NSAssert([bundleVersion isEqualToString:[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"]],
+	NSCAssert([bundleVersion isEqualToString:[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"]],
 			 @"whoops! check the hard-coded CFBundleShortVersionString!");
-	NSAssert([bundleIdentifier isEqualToString:[[NSBundle mainBundle] bundleIdentifier]],
+	NSCAssert([bundleIdentifier isEqualToString:[[NSBundle mainBundle] bundleIdentifier]],
 			 @"whoops! check the hard-coded bundle identifier!");
 #else
 	bundleVersion = @"1.0.2";
