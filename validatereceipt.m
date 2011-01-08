@@ -382,25 +382,9 @@ CFDataRef copy_mac_address(void)
 
 BOOL validateReceiptAtPath(NSString * path)
 {
-	NSDictionary * receipt = dictionaryWithAppStoreReceipt(path);
-
-	if (!receipt)
-		return NO;
-
-	NSData * guidData = nil;
 	NSString *bundleVersion = nil;
 	NSString *bundleIdentifer = nil;
 #ifndef USE_SAMPLE_RECEIPT
-	guidData = (NSData*)copy_mac_address();
-
-	if ([NSGarbageCollector defaultCollector])
-		[[NSGarbageCollector defaultCollector] enableCollectorForPointer:guidData];
-	else
-		[guidData autorelease];
-
-	if (!guidData)
-		return NO;
-
 	// it turns out, it's a bad idea, to use these two NSBundle methods in your app:
 	//
 	// bundleVersion = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
@@ -417,13 +401,30 @@ BOOL validateReceiptAtPath(NSString * path)
 			 @"whoops! check the hard-coded CFBundleShortVersionString!");
 	NSAssert([bundleIdentifer isEqualToString:[[NSBundle mainBundle] bundleIdentifier]],
 			 @"whoops! check the hard-coded bundle identifier!");
+#else
+	bundleVersion = @"1.0.2";
+	bundleIdentifer = @"com.example.SampleApp";
+#endif
+	NSDictionary * receipt = dictionaryWithAppStoreReceipt(path);
 
+	if (!receipt)
+		return NO;
+
+	NSData * guidData = nil;
+#ifndef USE_SAMPLE_RECEIPT
+	guidData = (NSData*)copy_mac_address();
+
+	if ([NSGarbageCollector defaultCollector])
+		[[NSGarbageCollector defaultCollector] enableCollectorForPointer:guidData];
+	else
+		[guidData autorelease];
+
+	if (!guidData)
+		return NO;
 #else
 	// Overwrite with example GUID for use with example receipt
 	unsigned char guid[] = { 0x00, 0x17, 0xf2, 0xc4, 0xbc, 0xc0 };
 	guidData = [NSData dataWithBytes:guid length:sizeof(guid)];
-	bundleVersion = @"1.0.2";
-	bundleIdentifer = @"com.example.SampleApp";
 #endif
 
 	NSMutableData *input = [NSMutableData data];
