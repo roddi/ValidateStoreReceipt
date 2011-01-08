@@ -64,8 +64,8 @@
 
 #define VRCFRelease(object) if(object) CFRelease(object)
 
-NSString *kReceiptBundleIdentifer = @"BundleIdentifier";
-NSString *kReceiptBundleIdentiferData = @"BundleIdentifierData";
+NSString *kReceiptBundleIdentifier = @"BundleIdentifier";
+NSString *kReceiptBundleIdentifierData = @"BundleIdentifierData";
 NSString *kReceiptVersion = @"Version";
 NSString *kReceiptOpaqueValue = @"OpaqueValue";
 NSString *kReceiptHash = @"Hash";
@@ -277,7 +277,7 @@ NSDictionary * dictionaryWithAppStoreReceipt(NSString * path)
 					switch (attr_type) {
 						case BUNDLE_ID:
 							// This is included for hash generation
-							key = kReceiptBundleIdentiferData;
+							key = kReceiptBundleIdentifierData;
 							break;
 						case OPAQUE_VALUE:
 							key = kReceiptOpaqueValue;
@@ -303,7 +303,7 @@ NSDictionary * dictionaryWithAppStoreReceipt(NSString * path)
 
 						switch (attr_type) {
 							case BUNDLE_ID:
-								key = kReceiptBundleIdentifer;
+								key = kReceiptBundleIdentifier;
 								break;
 							case VERSION:
 								key = kReceiptVersion;
@@ -383,27 +383,27 @@ CFDataRef copy_mac_address(void)
 BOOL validateReceiptAtPath(NSString * path)
 {
 	NSString *bundleVersion = nil;
-	NSString *bundleIdentifer = nil;
+	NSString *bundleIdentifier = nil;
 #ifndef USE_SAMPLE_RECEIPT
 	// it turns out, it's a bad idea, to use these two NSBundle methods in your app:
 	//
 	// bundleVersion = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
-	// bundleIdentifer = [[NSBundle mainBundle] bundleIdentifier];
+	// bundleIdentifier = [[NSBundle mainBundle] bundleIdentifier];
 	//
 	// http://www.craftymind.com/2011/01/06/mac-app-store-hacked-how-developers-can-better-protect-themselves/
 
 	// so use hard coded values instead (probably even somehow obfuscated)
 	bundleVersion = @"1.0.2";
-	bundleIdentifer = @"com.example.SampleApp";
+	bundleIdentifier = @"com.example.SampleApp";
 
 	// avoid making stupid mistakes --> check again
 	NSAssert([bundleVersion isEqualToString:[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"]],
 			 @"whoops! check the hard-coded CFBundleShortVersionString!");
-	NSAssert([bundleIdentifer isEqualToString:[[NSBundle mainBundle] bundleIdentifier]],
+	NSAssert([bundleIdentifier isEqualToString:[[NSBundle mainBundle] bundleIdentifier]],
 			 @"whoops! check the hard-coded bundle identifier!");
 #else
 	bundleVersion = @"1.0.2";
-	bundleIdentifer = @"com.example.SampleApp";
+	bundleIdentifier = @"com.example.SampleApp";
 #endif
 	NSDictionary * receipt = dictionaryWithAppStoreReceipt(path);
 
@@ -430,12 +430,12 @@ BOOL validateReceiptAtPath(NSString * path)
 	NSMutableData *input = [NSMutableData data];
 	[input appendData:guidData];
 	[input appendData:[receipt objectForKey:kReceiptOpaqueValue]];
-	[input appendData:[receipt objectForKey:kReceiptBundleIdentiferData]];
+	[input appendData:[receipt objectForKey:kReceiptBundleIdentifierData]];
 
 	NSMutableData *hash = [NSMutableData dataWithLength:SHA_DIGEST_LENGTH];
 	SHA1([input bytes], [input length], [hash mutableBytes]);
 
-	if ([bundleIdentifer isEqualToString:[receipt objectForKey:kReceiptBundleIdentifer]] &&
+	if ([bundleIdentifier isEqualToString:[receipt objectForKey:kReceiptBundleIdentifier]] &&
 		 [bundleVersion isEqualToString:[receipt objectForKey:kReceiptVersion]] &&
 		 [hash isEqualToData:[receipt objectForKey:kReceiptHash]])
 	{
