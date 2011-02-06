@@ -265,15 +265,14 @@ NSDictionary * dictionaryWithAppStoreReceipt(NSString * path)
 
 		// Only parse attributes we're interested in
 		if (attr_type > ATTR_START && attr_type < ATTR_END) {
-			NSString *key;
+			NSString *key = nil;
 
 			ASN1_get_object(&p, &length, &type, &xclass, seq_end - p);
 			if (type == V_ASN1_OCTET_STRING) {
-
+                NSData *data = [NSData dataWithBytes:p length:(NSUInteger)length];
+                
 				// Bytes
 				if (attr_type == BUNDLE_ID || attr_type == OPAQUE_VALUE || attr_type == HASH) {
-					NSData *data = [NSData dataWithBytes:p length:(NSUInteger)length];
-
 					switch (attr_type) {
 						case BUNDLE_ID:
 							// This is included for hash generation
@@ -286,8 +285,9 @@ NSDictionary * dictionaryWithAppStoreReceipt(NSString * path)
 							key = kReceiptHash;
 							break;
 					}
-
-					[info setObject:data forKey:key];
+					if (key) {
+                        [info setObject:data forKey:key];
+                    }
 				}
 
 				// Strings
@@ -297,10 +297,6 @@ NSDictionary * dictionaryWithAppStoreReceipt(NSString * path)
 					const unsigned char *str_p = p;
 					ASN1_get_object(&str_p, &str_length, &str_type, &xclass, seq_end - str_p);
 					if (str_type == V_ASN1_UTF8STRING) {
-						NSString *string = [[[NSString alloc] initWithBytes:str_p
-																	 length:(NSUInteger)str_length
-																   encoding:NSUTF8StringEncoding] autorelease];
-
 						switch (attr_type) {
 							case BUNDLE_ID:
 								key = kReceiptBundleIdentifier;
@@ -309,8 +305,14 @@ NSDictionary * dictionaryWithAppStoreReceipt(NSString * path)
 								key = kReceiptVersion;
 								break;
 						}
-
-						[info setObject:string forKey:key];
+                        
+						if (key) {                        
+                            NSString *string = [[NSString alloc] initWithBytes:str_p
+																		length:(NSUInteger)str_length
+                                                                      encoding:NSUTF8StringEncoding];
+                            [info setObject:string forKey:key];
+                            [string release];
+						}
 					}
 				}
 			}
