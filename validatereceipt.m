@@ -385,22 +385,28 @@ CFDataRef copy_mac_address(void)
 	return macAddress;
 }
 
+extern const NSString * global_bundleVersion;
+extern const NSString * global_bundleIdentifier;
+
+// in your project define those two somewhere as such:
+// const NSString * global_bundleVersion = @"1.0.2";
+// const NSString * global_bundleIdentifier = @"com.example.SampleApp";
+
 BOOL validateReceiptAtPath(NSString * path)
 {
-	NSString *bundleVersion = nil;
-	NSString *bundleIdentifier = nil;
-#ifndef USE_SAMPLE_RECEIPT
 	// it turns out, it's a bad idea, to use these two NSBundle methods in your app:
 	//
 	// bundleVersion = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
 	// bundleIdentifier = [[NSBundle mainBundle] bundleIdentifier];
 	//
 	// http://www.craftymind.com/2011/01/06/mac-app-store-hacked-how-developers-can-better-protect-themselves/
-
+	//
 	// so use hard coded values instead (probably even somehow obfuscated)
-	bundleVersion = @"1.0.2";
-	bundleIdentifier = @"com.example.SampleApp";
 
+	// analyser warning when USE_SAMPLE_RECEIPT is defined (wontfix)
+	NSString *bundleVersion = (NSString*)global_bundleVersion;
+	NSString *bundleIdentifier = (NSString*)global_bundleIdentifier;
+#ifndef USE_SAMPLE_RECEIPT
 	// avoid making stupid mistakes --> check again
 	NSCAssert([bundleVersion isEqualToString:[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"]],
 			 @"whoops! check the hard-coded CFBundleShortVersionString!");

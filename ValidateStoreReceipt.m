@@ -20,6 +20,9 @@
 
 #import "validatereceipt.h"
 
+const NSString * global_bundleVersion = @"1.0.2";
+const NSString * global_bundleIdentifier = @"com.example.SampleApp";
+
 int main (int argc, const char * argv[]) {
     NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
 
