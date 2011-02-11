@@ -120,9 +120,12 @@ NSData * appleRootCert(void)
 			CSSM_DATA certData;
 			SecCertificateGetData((SecCertificateRef)itemRef, &certData);
 			resultData = [NSData dataWithBytes:certData.Data length:certData.Length];
-			SecKeychainItemFreeContent(&list, NULL);
-			VRCFRelease(itemRef);
 		}
+		
+		SecKeychainItemFreeContent(&list, NULL);
+
+		if (itemRef)
+			VRCFRelease(itemRef);
 
 		[name release];
 	}
