@@ -32,9 +32,18 @@ extern NSString *kReceiptBundleIdentiferData;
 extern NSString *kReceiptVersion;
 extern NSString *kReceiptOpaqueValue;
 extern NSString *kReceiptHash;
+extern NSString *kReceiptInApp;
+
+extern NSString *kReceiptInAppQuantity;
+extern NSString *kReceiptInAppProductIdentifier;
+extern NSString *kReceiptInAppTransactionIdentifier;
+extern NSString *kReceiptInAppPurchaseDate;
+extern NSString *kReceiptInAppOriginalTransactionIdentifier;
+extern NSString *kReceiptInAppOriginalPurchaseDate;
 
 CFDataRef copy_mac_address(void);
 
+NSArray * parseInAppPurchasesData(NSData * inappData);
 NSDictionary * dictionaryWithAppStoreReceipt(NSString * path);
 BOOL validateReceiptAtPath(NSString * path);
 NSData * appleRootCert(void);
