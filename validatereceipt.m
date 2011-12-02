@@ -2,7 +2,7 @@
 //  validatereceipt.m
 //
 //  Created by Ruotger Skupin on 23.10.10.
-//  Copyright 2010-2011 Matthew Stevens, Ruotger Skupin, Apple, Dave Carlton, Fraser Hess, anlumo, David Keegan. All rights reserved.
+//  Copyright 2010-2011 Matthew Stevens, Ruotger Skupin, Apple, Dave Carlton, Fraser Hess, anlumo, David Keegan, Alessandro Segala. All rights reserved.
 //
 
 /*
@@ -177,7 +177,7 @@ NSArray * parseInAppPurchasesData(NSData * inappData)
 			break;
 		}
 		
-		NSMutableDictionary *item = [NSMutableDictionary dictionaryWithCapacity:6];
+		NSMutableDictionary *item = [[NSMutableDictionary alloc] initWithCapacity:6];
 		
 		while (p < set_end) {
 			ASN1_get_object(&p, &length, &type, &xclass, set_end - p);
@@ -206,7 +206,6 @@ NSArray * parseInAppPurchasesData(NSData * inappData)
 			ASN1_get_object(&p, &length, &type, &xclass, seq_end - p);
 			if (type == V_ASN1_INTEGER && length == 1) {
 				attr_version = p[0];
-				attr_version = attr_version;
 			}
 			p += length;
 			
@@ -246,7 +245,7 @@ NSArray * parseInAppPurchasesData(NSData * inappData)
 					}
 					
 					// Strings
-					else if (attr_type == INAPP_PRODID ||
+					if (attr_type == INAPP_PRODID ||
 							 attr_type == INAPP_TRANSID ||
 							 attr_type == INAPP_ORIGTRANSID ||
 							 attr_type == INAPP_PURCHDATE ||
@@ -277,7 +276,7 @@ NSArray * parseInAppPurchasesData(NSData * inappData)
 								[string release];
 							}
 						}
-						else if (str_type == V_ASN1_IA5STRING) {
+						if (str_type == V_ASN1_IA5STRING) {
 							switch (attr_type) {
 								case INAPP_PURCHDATE:
 									key = kReceiptInAppPurchaseDate;
@@ -308,7 +307,14 @@ NSArray * parseInAppPurchasesData(NSData * inappData)
 			}
 		}
 		
+		// Skip any remaining fields in this SET
+		while (p < set_end) {
+			ASN1_get_object(&p, &length, &type, &xclass, set_end - p);
+			p += length;
+		}
+		
 		[resultArray addObject:item];
+		[item release];
 	}
 	
 	return resultArray;
@@ -470,7 +476,7 @@ NSDictionary * dictionaryWithAppStoreReceipt(NSString * path)
 				}
 
 				// Strings
-				else if (attr_type == BUNDLE_ID || attr_type == VERSION) {
+				if (attr_type == BUNDLE_ID || attr_type == VERSION) {
 					int str_type = 0;
 					long str_length = 0;
 					const uint8_t *str_p = p;
@@ -496,7 +502,7 @@ NSDictionary * dictionaryWithAppStoreReceipt(NSString * path)
 				}
 				
 				// In-App purchases
-				else if (attr_type == INAPP_PURCHASE)
+				if (attr_type == INAPP_PURCHASE)
 				{
 					NSArray *inApp = parseInAppPurchasesData(data);
 					[info setObject:inApp forKey:kReceiptInApp];
@@ -566,6 +572,23 @@ CFDataRef copy_mac_address(void)
 	}
 
 	return macAddress;
+}
+
+NSArray* obtainInAppPurchases(NSString *receiptPath)
+{
+	// According to the documentation, we need to validate the receipt first.
+	// If the receipt is not valid, no In-App purchase is valid.
+	// This performs a "quick" validation. Please use validateReceiptAtPath to perform a full validation.
+	
+	NSDictionary * receipt = dictionaryWithAppStoreReceipt(receiptPath);
+	if (!receipt)
+		return nil;
+	
+	NSArray *purchases = [receipt objectForKey:kReceiptInApp];
+	if(!purchases || ![purchases isKindOfClass:[NSArray class]])
+		return nil;
+	
+	return purchases;
 }
 
 extern const NSString * global_bundleVersion;
