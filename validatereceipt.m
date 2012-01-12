@@ -2,7 +2,7 @@
 //  validatereceipt.m
 //
 //  Created by Ruotger Skupin on 23.10.10.
-//  Copyright 2010-2011 Matthew Stevens, Ruotger Skupin, Apple, Dave Carlton, Fraser Hess, anlumo, David Keegan. All rights reserved.
+//  Copyright 2010-2011 Matthew Stevens, Ruotger Skupin, Apple, Dave Carlton, Fraser Hess, anlumo, David Keegan, Alessandro Segala. All rights reserved.
 //
 
 /*
@@ -64,11 +64,19 @@
 
 #define VRCFRelease(object) if(object) CFRelease(object)
 
-NSString *kReceiptBundleIdentifier = @"BundleIdentifier";
-NSString *kReceiptBundleIdentifierData = @"BundleIdentifierData";
-NSString *kReceiptVersion = @"Version";
-NSString *kReceiptOpaqueValue = @"OpaqueValue";
-NSString *kReceiptHash = @"Hash";
+NSString *kReceiptBundleIdentifier				= @"BundleIdentifier";
+NSString *kReceiptBundleIdentifierData			= @"BundleIdentifierData";
+NSString *kReceiptVersion						= @"Version";
+NSString *kReceiptOpaqueValue					= @"OpaqueValue";
+NSString *kReceiptHash							= @"Hash";
+NSString *kReceiptInApp							= @"InApp";
+
+NSString *kReceiptInAppQuantity					= @"Quantity";
+NSString *kReceiptInAppProductIdentifier		= @"ProductIdentifier";
+NSString *kReceiptInAppTransactionIdentifier	= @"TransactionIdentifier";
+NSString *kReceiptInAppPurchaseDate				= @"PurchaseDate";
+NSString *kReceiptInAppOriginalTransactionIdentifier	= @"OriginalTransactionIdentifier";
+NSString *kReceiptInAppOriginalPurchaseDate		= @"OriginalPurchaseDate";
 
 
 NSData * appleRootCert(void)
@@ -137,19 +145,193 @@ NSData * appleRootCert(void)
 }
 
 
+NSArray * parseInAppPurchasesData(NSData * inappData)
+{
+#define INAPP_ATTR_START	1700
+#define INAPP_QUANTITY		1701
+#define INAPP_PRODID		1702
+#define INAPP_TRANSID		1703
+#define INAPP_PURCHDATE		1704
+#define INAPP_ORIGTRANSID	1705
+#define INAPP_ORIGPURCHDATE	1706
+#define INAPP_ATTR_END		1707
+	
+	int type = 0;
+	int xclass = 0;
+	long length = 0;
+	
+	NSUInteger dataLenght = [inappData length];
+	const uint8_t *p = [inappData bytes];
+	
+	const uint8_t *end = p + dataLenght;
+	
+	NSMutableArray *resultArray = [NSMutableArray array];
+	
+	while (p < end)
+	{
+		ASN1_get_object(&p, &length, &type, &xclass, end - p);
+		
+		const uint8_t *set_end = p + length;
+		
+		if(type != V_ASN1_SET) {
+			break;
+		}
+		
+		NSMutableDictionary *item = [[NSMutableDictionary alloc] initWithCapacity:6];
+		
+		while (p < set_end) {
+			ASN1_get_object(&p, &length, &type, &xclass, set_end - p);
+			if (type != V_ASN1_SEQUENCE)
+				break;
+			
+			const uint8_t *seq_end = p + length;
+			
+			int attr_type = 0;
+			int attr_version = 0;
+			
+			// Attribute type
+			ASN1_get_object(&p, &length, &type, &xclass, seq_end - p);
+			if (type == V_ASN1_INTEGER) {
+				if(length == 1) {
+					attr_type = p[0];
+				}
+				else if(length == 2) {
+					attr_type = p[0] * 0x100 + p[1]
+					;
+				}
+			}
+			p += length;
+			
+			// Attribute version
+			ASN1_get_object(&p, &length, &type, &xclass, seq_end - p);
+			if (type == V_ASN1_INTEGER && length == 1) {
+				attr_version = p[0];
+			}
+			p += length;
+			
+			// Only parse attributes we're interested in
+			if (attr_type > INAPP_ATTR_START && attr_type < INAPP_ATTR_END) {
+				NSString *key = nil;
+				
+				ASN1_get_object(&p, &length, &type, &xclass, seq_end - p);
+				if (type == V_ASN1_OCTET_STRING) {
+					//NSData *data = [NSData dataWithBytes:p length:(NSUInteger)length];
+					
+					// Integers
+					if(attr_type == INAPP_QUANTITY) {
+						int num_type = 0;
+						long num_length = 0;
+						const uint8_t *num_p = p;
+						ASN1_get_object(&num_p, &num_length, &num_type, &xclass, seq_end - num_p);
+						if(num_type == V_ASN1_INTEGER) {
+							NSUInteger quantity = 0;
+							if(num_length) {
+								quantity += num_p[0];
+								if(num_length > 1) {
+									quantity += num_p[1] * 0x100;
+									if(num_length > 2) {
+										quantity += num_p[2] * 0x10000;
+										if(num_length > 3) {
+											quantity += num_p[3] * 0x1000000;
+										}
+									}
+								}
+							}
+							
+							NSNumber *num = [[NSNumber alloc] initWithUnsignedInteger:quantity];
+							[item setObject:num forKey:kReceiptInAppQuantity];
+							[num release];
+						}
+					}
+					
+					// Strings
+					if (attr_type == INAPP_PRODID ||
+							 attr_type == INAPP_TRANSID ||
+							 attr_type == INAPP_ORIGTRANSID ||
+							 attr_type == INAPP_PURCHDATE ||
+							 attr_type == INAPP_ORIGPURCHDATE) {
+						
+						int str_type = 0;
+						long str_length = 0;
+						const uint8_t *str_p = p;
+						ASN1_get_object(&str_p, &str_length, &str_type, &xclass, seq_end - str_p);
+						if (str_type == V_ASN1_UTF8STRING) {
+							switch (attr_type) {
+								case INAPP_PRODID:
+									key = kReceiptInAppProductIdentifier;
+									break;
+								case INAPP_TRANSID:
+									key = kReceiptInAppTransactionIdentifier;
+									break;
+								case INAPP_ORIGTRANSID:
+									key = kReceiptInAppOriginalTransactionIdentifier;
+									break;
+							}
+							
+							if (key) {                        
+								NSString *string = [[NSString alloc] initWithBytes:str_p
+																			length:(NSUInteger)str_length
+																		  encoding:NSUTF8StringEncoding];
+								[item setObject:string forKey:key];
+								[string release];
+							}
+						}
+						if (str_type == V_ASN1_IA5STRING) {
+							switch (attr_type) {
+								case INAPP_PURCHDATE:
+									key = kReceiptInAppPurchaseDate;
+									break;
+								case INAPP_ORIGPURCHDATE:
+									key = kReceiptInAppOriginalPurchaseDate;
+									break;
+							}
+							
+							if (key) {                        
+								NSString *string = [[NSString alloc] initWithBytes:str_p
+																			length:(NSUInteger)str_length
+																		  encoding:NSASCIIStringEncoding];
+								[item setObject:string forKey:key];
+								[string release];
+							}
+						}
+					}
+				}
+				
+				p += length;
+			}
+			
+			// Skip any remaining fields in this SEQUENCE
+			while (p < seq_end) {
+				ASN1_get_object(&p, &length, &type, &xclass, seq_end - p);
+				p += length;
+			}
+		}
+		
+		// Skip any remaining fields in this SET
+		while (p < set_end) {
+			ASN1_get_object(&p, &length, &type, &xclass, set_end - p);
+			p += length;
+		}
+		
+		[resultArray addObject:item];
+		[item release];
+	}
+	
+	return resultArray;
+}
+
+
 NSDictionary * dictionaryWithAppStoreReceipt(NSString * path)
 {
 	NSData * rootCertData = appleRootCert();
 
-	enum ATTRIBUTES
-	{
-		ATTR_START = 1,
-		BUNDLE_ID,
-		VERSION,
-		OPAQUE_VALUE,
-		HASH,
-		ATTR_END
-	};
+#define ATTR_START 1
+#define BUNDLE_ID 2
+#define VERSION 3
+#define OPAQUE_VALUE 4
+#define HASH 5
+#define ATTR_END 6
+#define INAPP_PURCHASE 17
 
 	ERR_load_PKCS7_strings();
 	ERR_load_X509_strings();
@@ -186,7 +368,7 @@ NSDictionary * dictionaryWithAppStoreReceipt(NSString * path)
 	X509_STORE *store = X509_STORE_new();
 	if (store)
 	{
-		const unsigned char *data = (unsigned char *)(rootCertData.bytes);
+		const uint8_t *data = (uint8_t *)(rootCertData.bytes);
 		X509 *appleCA = d2i_X509(NULL, &data, (long)rootCertData.length);
 		if (appleCA)
 		{
@@ -226,8 +408,8 @@ NSDictionary * dictionaryWithAppStoreReceipt(NSString * path)
 	}
 
 	ASN1_OCTET_STRING *octets = p7->d.sign->contents->d.data;
-	const unsigned char *p = octets->data;
-	const unsigned char *end = p + octets->length;
+	const uint8_t *p = octets->data;
+	const uint8_t *end = p + octets->length;
 
 	int type = 0;
 	int xclass = 0;
@@ -246,7 +428,7 @@ NSDictionary * dictionaryWithAppStoreReceipt(NSString * path)
 		if (type != V_ASN1_SEQUENCE)
 			break;
 
-		const unsigned char *seq_end = p + length;
+		const uint8_t *seq_end = p + length;
 
 		int attr_type = 0;
 		int attr_version = 0;
@@ -267,7 +449,7 @@ NSDictionary * dictionaryWithAppStoreReceipt(NSString * path)
 		p += length;
 
 		// Only parse attributes we're interested in
-		if (attr_type > ATTR_START && attr_type < ATTR_END) {
+		if ((attr_type > ATTR_START && attr_type < ATTR_END) || attr_type == INAPP_PURCHASE) {
 			NSString *key = nil;
 
 			ASN1_get_object(&p, &length, &type, &xclass, seq_end - p);
@@ -297,7 +479,7 @@ NSDictionary * dictionaryWithAppStoreReceipt(NSString * path)
 				if (attr_type == BUNDLE_ID || attr_type == VERSION) {
 					int str_type = 0;
 					long str_length = 0;
-					const unsigned char *str_p = p;
+					const uint8_t *str_p = p;
 					ASN1_get_object(&str_p, &str_length, &str_type, &xclass, seq_end - str_p);
 					if (str_type == V_ASN1_UTF8STRING) {
 						switch (attr_type) {
@@ -317,6 +499,13 @@ NSDictionary * dictionaryWithAppStoreReceipt(NSString * path)
                             [string release];
 						}
 					}
+				}
+				
+				// In-App purchases
+				if (attr_type == INAPP_PURCHASE)
+				{
+					NSArray *inApp = parseInAppPurchasesData(data);
+					[info setObject:inApp forKey:kReceiptInApp];
 				}
 			}
 			p += length;
@@ -383,6 +572,23 @@ CFDataRef copy_mac_address(void)
 	}
 
 	return macAddress;
+}
+
+NSArray* obtainInAppPurchases(NSString *receiptPath)
+{
+	// According to the documentation, we need to validate the receipt first.
+	// If the receipt is not valid, no In-App purchase is valid.
+	// This performs a "quick" validation. Please use validateReceiptAtPath to perform a full validation.
+	
+	NSDictionary * receipt = dictionaryWithAppStoreReceipt(receiptPath);
+	if (!receipt)
+		return nil;
+	
+	NSArray *purchases = [receipt objectForKey:kReceiptInApp];
+	if(!purchases || ![purchases isKindOfClass:[NSArray class]])
+		return nil;
+	
+	return purchases;
 }
 
 extern const NSString * global_bundleVersion;

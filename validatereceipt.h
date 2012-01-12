@@ -2,7 +2,7 @@
 //  validatereceipt.h
 //
 //  Created by Ruotger Skupin on 23.10.10.
-//  Copyright 2010-2011 Matthew Stevens, Ruotger Skupin, Apple. All rights reserved.
+//  Copyright 2010-2011 Matthew Stevens, Ruotger Skupin, Apple, Alessandro Segala. All rights reserved.
 //
 
 /* 
@@ -32,9 +32,19 @@ extern NSString *kReceiptBundleIdentiferData;
 extern NSString *kReceiptVersion;
 extern NSString *kReceiptOpaqueValue;
 extern NSString *kReceiptHash;
+extern NSString *kReceiptInApp;
+
+extern NSString *kReceiptInAppQuantity;
+extern NSString *kReceiptInAppProductIdentifier;
+extern NSString *kReceiptInAppTransactionIdentifier;
+extern NSString *kReceiptInAppPurchaseDate;
+extern NSString *kReceiptInAppOriginalTransactionIdentifier;
+extern NSString *kReceiptInAppOriginalPurchaseDate;
 
 CFDataRef copy_mac_address(void);
 
+NSArray * parseInAppPurchasesData(NSData * inappData);
 NSDictionary * dictionaryWithAppStoreReceipt(NSString * path);
+NSArray* obtainInAppPurchases(NSString *receiptPath);
 BOOL validateReceiptAtPath(NSString * path);
 NSData * appleRootCert(void);
