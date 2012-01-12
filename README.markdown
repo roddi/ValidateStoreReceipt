@@ -10,12 +10,13 @@ Unfortunately this document doesn't tell you how to process this receipt in deta
 
 This validator parses and validates the payload and the PKCS7 container itself. 
 
-Thanks to Matthew Stevens for coming up with the parser code. Thanks to Dave Carlton for polishing it a bit. Thanks to Fraser Hess for more polish and correcting my non-native English. Thanks to anlumo for the certificate checking code. 
+Thanks to Matthew Stevens for coming up with the parser code. Thanks to Dave Carlton for polishing it a bit. Thanks to Fraser Hess for more polish and correcting my non-native English. Thanks to anlumo for the certificate checking code. Thanks to Alessandro Segala for the In-App purchasing code.
 
 Missing from this project: 
 
 - Apple's example receipt. (I WON'T ADD IT HERE, APPLE WON'T LIKE THAT, SO DON'T ASK!)
 - Any measures to make your app cracker proof.
+- If I understand Alessandro correctly, In-App purchases are only extracted but not validated.
 
 ## Installation
 
