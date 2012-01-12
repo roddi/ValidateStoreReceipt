@@ -205,6 +205,8 @@ NSArray * parseInAppPurchasesData(NSData * inappData)
 			// Attribute version
 			ASN1_get_object(&p, &length, &type, &xclass, seq_end - p);
 			if (type == V_ASN1_INTEGER && length == 1) {
+                // clang analyser hit (wontfix at the moment, since the code might come in handy later)
+                // But if someone has a convincing case throwing that out, I might do so, Roddi
 				attr_version = p[0];
 			}
 			p += length;
