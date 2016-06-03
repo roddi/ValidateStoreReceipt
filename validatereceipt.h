@@ -27,8 +27,8 @@
 #import <Foundation/Foundation.h>
 
 
-extern NSString *kReceiptBundleIdentifer;
-extern NSString *kReceiptBundleIdentiferData;
+extern NSString *kReceiptBundleIdentifier;
+extern NSString *kReceiptBundleIdentifierData;
 extern NSString *kReceiptVersion;
 extern NSString *kReceiptOpaqueValue;
 extern NSString *kReceiptHash;
